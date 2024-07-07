@@ -1,10 +1,6 @@
 import "./App.css";
 import { useEffect, useReducer } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import PPL from "./components/PPL";
-import POF from "./components/POF";
-import IR from "./components/IR";
-import FR from "./components/FR";
 import AllTask from "./components/AllTask";
 import Layout from "./components/Layout";
 import TaskContext from "./context/TaskContext";
@@ -59,6 +55,7 @@ function App() {
       fetchTasks();
     }
   }, [userToken]);
+
   return (
     <BrowserRouter>
       <TokenContext.Provider
@@ -69,10 +66,6 @@ function App() {
             <Route path="/" element={<Header />}>
               <Route path="/" element={token ? <Layout /> : <Login />}>
                 <Route index element={<AllTask />} />
-                <Route path="ppl" element={<PPL />} />
-                <Route path="pof" element={<POF />} />
-                <Route path="ir" element={<IR />} />
-                <Route path="fr" element={<FR />} />
               </Route>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

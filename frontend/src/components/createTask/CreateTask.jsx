@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useContext } from "react";
-import { useForm } from "react-hook-form";
 import TaskContext from "../../context/TaskContext";
 import TokenContext from "../../context/TokenContext";
 import axios from "../../Axios/axios.js";
@@ -9,8 +8,10 @@ import "./createTask.css";
 function CreateTask() {
   const { dispatch } = useContext(TaskContext);
   const { userToken } = useContext(TokenContext);
+  const [categories, setCategories] = useState([]);
   const [subCategory, setSubCategory] = useState("");
   const [subHeading, setSubHeading] = useState("");
+  const [addCategory, setAddCategory] = useState("");
   const [question, setQuestion] = useState("");
   const [answerA, setAnswerA] = useState("");
   const [answerB, setAnswerB] = useState("");
@@ -26,7 +27,21 @@ function CreateTask() {
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [realId, setRealId] = useState("");
 
-  const { reset } = useForm();
+  useEffect(() => {
+    fetch("http://localhost:8000/categories.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setCategories(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -80,30 +95,7 @@ function CreateTask() {
     // reset();
   };
 
-  const handleImageAChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const img = new Image();
-        img.src = reader.result;
-        img.onload = () => {
-          setImgAData(img.src);
-        };
-        img.onerror = () => {
-          console.error("The file could not be read as an image.");
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Please upload a valid image file.");
-    }
-  };
-
-  const handleImageBChange = (e) => {
+  const handleImageChange = (e, setImageData) => {
     const file = e.target.files[0];
 
     if (file && file.type.startsWith("image/")) {
@@ -114,103 +106,7 @@ function CreateTask() {
         img.src = reader.result;
 
         img.onload = () => {
-          setImgBData(reader.result);
-        };
-        img.onerror = () => {
-          console.error("The file could not be read as an image.");
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Please upload a valid image file.");
-    }
-  };
-
-  const handleImageCChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const img = new Image();
-        img.src = reader.result;
-
-        img.onload = () => {
-          setImgCData(reader.result);
-        };
-        img.onerror = () => {
-          console.error("The file could not be read as an image.");
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Please upload a valid image file.");
-    }
-  };
-
-  const handleImageDChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const img = new Image();
-        img.src = reader.result;
-
-        img.onload = () => {
-          setImgDData(reader.result);
-        };
-        img.onerror = () => {
-          console.error("The file could not be read as an image.");
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Please upload a valid image file.");
-    }
-  };
-
-  const handleImageQChange = (event) => {
-    const file = event.target.files[0];
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const img = new Image();
-        img.src = reader.result;
-
-        img.onload = () => {
-          setImgQData(reader.result);
-        };
-        img.onerror = () => {
-          console.error("The file could not be read as an image.");
-        };
-      };
-
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Please upload a valid image file.");
-    }
-  };
-
-  const handleImageRChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const img = new Image();
-        img.src = reader.result;
-
-        img.onload = () => {
-          setImgRData(reader.result);
+          setImageData(reader.result); // Use the passed function to set data
         };
         img.onerror = () => {
           console.error("The file could not be read as an image.");
@@ -225,6 +121,21 @@ function CreateTask() {
 
   const handleCategoryChange = (e) => {
     setSubCategory(e.target.value);
+  };
+
+  const AddCategoryFunc = async () => {
+    if (addCategory !== "") {
+      categories.push({ name: addCategory });
+      try {
+        const response = await axios.post("/category/addCategory", {
+          categories,
+        });
+      } catch (error) {
+        alert(error);
+      }
+    } else {
+      alert("Fill out the category name to add");
+    }
   };
 
   // const showToast = () => {
@@ -243,18 +154,38 @@ function CreateTask() {
         <form onSubmit={handleAdd}>
           <div>
             <label htmlFor="title">Question Category</label>
-            <select
-              id="subCategory"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/4 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-3"
-              onChange={handleCategoryChange}
-              value={subCategory}
-            >
-              <option selected>Choose a Category</option>
-              <option value="PPL">PPL</option>
-              <option value="POF">POF</option>
-              <option value="IR">IR</option>
-              <option value="FR">FR</option>
-            </select>
+            <div className="flex flex-row w-full p-2.5 items-center">
+              <select
+                id="subCategory"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/4 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                onChange={handleCategoryChange}
+                value={subCategory}
+              >
+                <option value="" disabled>
+                  Choose a Category
+                </option>
+                {categories.map((category, index) => (
+                  <option key={index} value={category.name}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                name="addCategory"
+                id="addCategory"
+                value={addCategory}
+                onChange={(e) => setAddCategory(e.target.value)}
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/4 p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ml-5"
+              />
+              <button
+                type="button"
+                className=" bg-blue-700 rounded-full text-white py-3 px-5 font-bold text-lg ml-5"
+                onClick={AddCategoryFunc}
+              >
+                +
+              </button>
+            </div>
           </div>
           <div>
             <label htmlFor="title">QuestionTitle</label>
@@ -283,7 +214,7 @@ function CreateTask() {
             <input
               type="file"
               accept="image/*"
-              onChange={handleImageQChange}
+              onChange={(e) => handleImageChange(e, setImgQData)}
               className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
             />
           </div>
@@ -302,7 +233,7 @@ function CreateTask() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageAChange}
+                onChange={(e) => handleImageChange(e, setImgAData)}
                 className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
               />
             </div>
@@ -320,7 +251,7 @@ function CreateTask() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageBChange}
+                onChange={(e) => handleImageChange(e, setImgBData)}
                 className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
               />
             </div>
@@ -334,13 +265,13 @@ function CreateTask() {
                 id="answerC"
                 value={answerC}
                 required
-                onChange={(e) => setAnswerC(e.target.value)}
+                onChange={(e) => handleImageChange(e, setImgCData)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageCChange}
+                onChange={(e) => setAnswerC(e.target.value)}
                 className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
               />
             </div>
@@ -358,7 +289,7 @@ function CreateTask() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageDChange}
+                onChange={(e) => handleImageChange(e, setImgDData)}
                 className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
               />
             </div>
@@ -371,28 +302,31 @@ function CreateTask() {
               name="refData"
               id="refData"
               value={refData}
-              required
               onChange={(e) => setRefData(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
             <input
               type="file"
               accept="image/*"
-              onChange={handleImageRChange}
+              onChange={(e) => handleImageChange(e, setImgRData)}
               className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
             />
           </div>
           <div>
             <label htmlFor="title">Correct Answer</label>
-            <input
-              type="text"
+            <select
               name="correctAnswer"
               id="correctAnswer"
-              value={correctAnswer}
-              required
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-1/6 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-3"
               onChange={(e) => setCorrectAnswer(e.target.value)}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-24 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            />
+              value={correctAnswer}
+            >
+              <option selected></option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
           </div>
           <div className="flex justify-center">
             <button
@@ -403,12 +337,6 @@ function CreateTask() {
             </button>
           </div>
         </form>
-        <div
-          className="toast bg-green-600 text-white p-3 rounded-xl shadow-2xl text-center absolute bottom-4 left-1/2 -translate-x-1/2"
-          id="toast"
-        >
-          <p>This is test</p>
-        </div>
       </div>
     </div>
   );
