@@ -108,9 +108,25 @@ const setApply = async (req, res) => {
   }
 };
 
+const deleteClient = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const client = await clientModel.findOneAndDelete({ _id: id });
+    if (!client) {
+      return res
+        .status(404)
+        .send({ success: false, message: "No client found" });
+    }
+    res.send({ success: true, message: "Client deleted successfully", client });
+  } catch (err) {
+    res.status(500).send({ success: false, message: err.message });
+  }
+};
+
 function getRandomInt(min, max) {
   min = Math.ceil(min); // Ensure the minimum is rounded up to the nearest whole number
   max = Math.floor(max); // Ensure the maximum is rounded down to the nearest whole number
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
-export { loginClient, registerClient, getAllClient, setApply };
+export { loginClient, registerClient, getAllClient, setApply, deleteClient };

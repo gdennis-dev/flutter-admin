@@ -26,4 +26,28 @@ const addCategory = (req, res) => {
   );
 };
 
-export { addCategory };
+const getCategory = (req, res) => {
+  const filePath = path.join(__dirname, "public", "categories.json");
+
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return res
+        .status(500)
+        .send({ message: "Error reading file", error: err });
+    }
+
+    try {
+      const jsonData = JSON.parse(data);
+      console.log(jsonData);
+      res.send(jsonData);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+      res
+        .status(500)
+        .send({ message: "Error parsing JSON", error: parseError });
+    }
+  });
+};
+
+export { addCategory, getCategory };

@@ -29,9 +29,9 @@ function Login() {
       <section className="login-container">
         <div className="px-6 h-full text-gray-800">
           <div className="flex xl:justify-center lg:justify-between justify-center items-center flex-wrap h-full g-6">
-            <div className="grow-0 shrink-1 md:shrink-0 basis-auto xl:w-6/12 lg:w-6/12 md:w-9/12 mb-12 md:mb-0">
+            <div className="mt-6 grow-0 shrink-1 md:shrink-0 basis-auto xl:w-6/12 lg:w-6/12 md:w-9/12 mb-12 md:mb-0">
               <img
-                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
                 className="w-full"
                 alt="Sample"
               />
@@ -81,7 +81,7 @@ function Login() {
                       Remember me
                     </label>
                   </div>
-                  <Link to={"/forgotPassword"}>Forgot Password</Link>
+                  {/* <Link to={"/forgotPassword"}>Forgot Password</Link> */}
                 </div>
                 <div className="text-center lg:text-left">
                   <button
@@ -91,7 +91,7 @@ function Login() {
                   >
                     Login
                   </button>
-                  <p className="text-sm font-semibold mt-2 pt-1 mb-0">
+                  {/* <p className="text-sm font-semibold mt-2 pt-1 mb-0">
                     Don't have an account?
                     <Link
                       to={"/register"}
@@ -99,7 +99,7 @@ function Login() {
                     >
                       Register
                     </Link>
-                  </p>
+                  </p> */}
                 </div>
               </form>
             </div>

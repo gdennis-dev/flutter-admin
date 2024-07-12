@@ -28,19 +28,15 @@ function CreateTask() {
   const [realId, setRealId] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/categories.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    async function getCategoryFunc() {
+      try {
+        const res = await axios.get("/category/getCategory");
+        setCategories(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getCategoryFunc();
   }, []);
 
   const handleAdd = async (e) => {
@@ -127,7 +123,7 @@ function CreateTask() {
     if (addCategory !== "") {
       categories.push({ name: addCategory });
       try {
-        const response = await axios.post("/category/addCategory", {
+        await axios.post("/category/addCategory", {
           categories,
         });
       } catch (error) {
@@ -265,13 +261,13 @@ function CreateTask() {
                 id="answerC"
                 value={answerC}
                 required
-                onChange={(e) => handleImageChange(e, setImgCData)}
+                onChange={(e) => setAnswerC(e.target.value)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setAnswerC(e.target.value)}
+                onChange={(e) => handleImageChange(e, setImgCData)}
                 className="relative m-0 block w-full min-w-0 flex-auto rounded border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-100 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-200 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-200 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary my-3"
               />
             </div>

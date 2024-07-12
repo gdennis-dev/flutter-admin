@@ -2,6 +2,7 @@ import React from "react";
 import Task from "./Task/Task";
 import { useContext, useState, useEffect } from "react";
 import TaskContext from "../context/TaskContext";
+import axios from "../Axios/axios.js";
 
 function AllTask() {
   const { tasks } = useContext(TaskContext);
@@ -9,19 +10,15 @@ function AllTask() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/categories.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    async function getCategoryFunc() {
+      try {
+        const res = await axios.get("/category/getCategory");
+        setCategories(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getCategoryFunc();
   }, []);
 
   return (

@@ -67,11 +67,14 @@ function App() {
               <Route path="/" element={token ? <Layout /> : <Login />}>
                 <Route index element={<AllTask />} />
               </Route>
+              <Route
+                path="/manageUser"
+                element={token ? <UserManagement /> : <Login />}
+              />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgotPassword" element={<ForgotPassword />} />
               <Route path="/resetPassword" element={<ResetPassword />} />
-              <Route path="/manageUser" element={<UserManagement />} />
             </Route>
           </Routes>
         </TaskContext.Provider>
